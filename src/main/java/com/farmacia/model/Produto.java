@@ -3,6 +3,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+
 @Data
 @Document(collection = "produtos")
 public class Produto {
@@ -11,6 +12,10 @@ public class Produto {
     private String nome;
     private String descricao;
     private double preco;
+    private String marca;
     private int quantidadeEmEstoque;
+    private String categoria;
+    private String imagemUrl;
 
+    private byte[] imagemProduto;
 }
