@@ -119,6 +119,23 @@ public class ProdutoController {
         return produto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Produto>> buscarProdutosNome(@RequestParam("nome") String nome) {
+        List<Produto> produtosEncontrados = produtoRepository.findByNomeContainingIgnoreCase(nome);
+
+        produtosEncontrados.forEach(produto -> {
+            if (produto.getImagemProduto() != null) {
+                String base64Image = Base64.getEncoder().encodeToString(produto.getImagemProduto());
+                produto.setImagemUrl("data:image/png;base64," + base64Image);
+            }
+        });
+
+//        if(produtosEncontrados.isEmpty()) {
+//            return ResponseEntity.noContent().build();
+//        }
+        return ResponseEntity.ok(produtosEncontrados);
+    }
+
 }
 
 
