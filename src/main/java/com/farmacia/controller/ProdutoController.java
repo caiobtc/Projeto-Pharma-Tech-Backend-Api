@@ -136,6 +136,11 @@ public class ProdutoController {
         return ResponseEntity.ok(produtosEncontrados);
     }
 
+    @GetMapping("/categoria")
+    public List<Produto> buscarPorCategoria(@RequestParam String categoria) {
+        return produtoService.buscarPorCategoria(categoria);
+    }
+
 }
 
 
