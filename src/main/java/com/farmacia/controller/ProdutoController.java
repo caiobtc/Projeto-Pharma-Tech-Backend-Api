@@ -59,7 +59,7 @@ public class ProdutoController {
         return produtos;
     }
 
-    @PostMapping
+    @PostMapping("/cadastrar-produto")
     public ResponseEntity<Produto> criarProduto(
         @RequestParam("produto") String produtoJson,
         @RequestParam("imagem") MultipartFile imagemFile) {
