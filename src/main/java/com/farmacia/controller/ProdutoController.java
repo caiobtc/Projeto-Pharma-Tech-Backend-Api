@@ -1,5 +1,6 @@
 package com.farmacia.controller;
 
+import com.farmacia.dto.ProdutoDTO;
 import com.farmacia.model.Produto;
 import com.farmacia.repository.ProdutoRepository;
 import com.farmacia.service.ProdutoService;
@@ -12,11 +13,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.List;
+
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/produtos")
@@ -31,19 +33,18 @@ public class ProdutoController {
     @PostMapping("/vender")
     public ResponseEntity<String> venderProduto(@RequestBody VendaRequest vendaRequest) {
         Optional<Produto> produtoOptional = produtoRepository.findById(vendaRequest.getIdProduto());
-        if(produtoOptional.isPresent()) {
+        if (produtoOptional.isPresent()) {
             Produto produto = produtoOptional.get();
-            if(produto.getQuantidadeEmEstoque() >= vendaRequest.getQuantidade()) {
+            if (produto.getQuantidadeEmEstoque() >= vendaRequest.getQuantidade()) {
                 produto.setQuantidadeEmEstoque(produto.getQuantidadeEmEstoque() - vendaRequest.getQuantidade());
-                produtoRepository.save(produto);
+                produtoService.criarProduto(produto); // Atualiza o produto no banco
                 return ResponseEntity.ok("Venda realizada com sucesso");
-            }else {
+            } else {
                 return ResponseEntity.badRequest().body("Estoque insuficiente para a venda.");
             }
-        }else {
-            ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.notFound().build();
         }
-        return null;
     }
 
     @GetMapping
@@ -59,15 +60,14 @@ public class ProdutoController {
         return produtos;
     }
 
+
+
     @PostMapping("/cadastrar-produto")
     public ResponseEntity<Produto> criarProduto(
-        @RequestParam("produto") String produtoJson,
-        @RequestParam("imagem") MultipartFile imagemFile) {
+            @RequestParam("produto") String produtoJson,
+            @RequestParam("imagem") MultipartFile imagemFile) {
 
         try {
-            System.out.println("Recebendo JSON do produto: " + produtoJson);
-            System.out.println("Recebendo arquivo de imagem: " + imagemFile.getOriginalFilename());
-
             ObjectMapper objectMapper = new ObjectMapper();
             Produto produto = objectMapper.readValue(produtoJson, Produto.class);
 
@@ -76,91 +76,49 @@ public class ProdutoController {
 
             // Salva o produto no banco de dados
             Produto novoProduto = produtoService.criarProduto(produto);
-            System.out.println("Produto salvo com sucesso: " + novoProduto);
-
-            // Retorna o produto criado
             return new ResponseEntity<>(novoProduto, HttpStatus.CREATED);
 
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Erro ao salvar o arquivo: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Erro inesperado: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
-
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Produto> atualizarProduto(@PathVariable String id, @RequestBody Produto produto) {
-       Produto produtoAtualizado = produtoService.atualizarProduto(id, produto);
-       return ResponseEntity.ok(produtoAtualizado);
+        Produto produtoAtualizado = produtoService.atualizarProduto(id, produto);
+        return ResponseEntity.ok(produtoAtualizado);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletarProduto(@PathVariable String id) {
-//        produtoService.deletarProduto(id);
-//        return ResponseEntity.noContent().build();
         Optional<Produto> produtoOptional = produtoRepository.findById(id);
 
-        if(produtoOptional.isPresent()) {
+        if (produtoOptional.isPresent()) {
             produtoService.deletarProduto(id);
-            return ResponseEntity.ok("Produto com ID " + id + " foi excluido com sucesso.");
-        }else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto com ID " + id + " não encontrado,");
+            return ResponseEntity.ok("Produto com ID " + id + " foi excluído com sucesso.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto com ID " + id + " não encontrado.");
         }
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Produto> buscarProdutoPorId(@PathVariable String id) {
-        Optional<Produto> produto = produtoRepository.findById(id);
-        return produto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/buscar")
     public ResponseEntity<List<Produto>> buscarProdutosNome(@RequestParam("nome") String nome) {
         List<Produto> produtosEncontrados = produtoRepository.findByNomeContainingIgnoreCase(nome);
-
         produtosEncontrados.forEach(produto -> {
             if (produto.getImagemProduto() != null) {
                 String base64Image = Base64.getEncoder().encodeToString(produto.getImagemProduto());
                 produto.setImagemUrl("data:image/png;base64," + base64Image);
             }
         });
-
 //        if(produtosEncontrados.isEmpty()) {
 //            return ResponseEntity.noContent().build();
 //        }
-        return ResponseEntity.ok(produtosEncontrados);
-    }
+            return ResponseEntity.ok(produtosEncontrados);
+       }
 
     @GetMapping("/categoria")
     public List<Produto> buscarPorCategoria(@RequestParam String categoria) {
         return produtoService.buscarPorCategoria(categoria);
     }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
