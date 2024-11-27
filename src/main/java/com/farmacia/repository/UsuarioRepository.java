@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface UsuarioRepository extends MongoRepository<Usuario, Long> {
     Usuario findByEmail(String email);
     Usuario findByCpf(String cpf);
+    // Buscar usuário por email ou CPF
+    Usuario findByEmailOrCpf(String emailCpf);
 }
