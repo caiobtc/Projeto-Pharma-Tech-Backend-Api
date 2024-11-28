@@ -119,6 +119,15 @@ public class ProdutoController {
 
     @GetMapping("/categoria")
     public List<Produto> buscarPorCategoria(@RequestParam String categoria) {
-        return produtoService.buscarPorCategoria(categoria);
+        List<Produto> produtos = produtoService.buscarPorCategoria(categoria);
+
+        produtos.forEach(produto -> {
+            if (produto.getImagemProduto() != null && produto.getImagemProduto().length > 0) {
+                String base64Image = Base64.getEncoder().encodeToString(produto.getImagemProduto());
+                produto.setImagemUrl("data:image/jpeg;base64," + base64Image);
+            }
+        });
+
+        return produtos;
     }
 }
