@@ -1,22 +1,35 @@
 package com.farmacia.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 @Document(collection = "usuarios")
 public class Usuario {
     @Id
     private String id;
-
+    @JsonProperty("nome")
     private String nome;
+
+    @JsonProperty("email")
     private String email;
+
+    @JsonProperty("cpf")
     private String cpf;
+
+    @JsonProperty("senha")
     private String senha;
 
+    @JsonProperty("telefone")
+    private String telefone;
+
+    @JsonProperty("dataNascimento")
+    private String dataNascimento;
+
+    @JsonProperty("endereco")
+    private String endereco;
 
     // Getters e setters
     public String getId() {
@@ -57,5 +70,29 @@ public class Usuario {
 
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
+    }
+
+    public String getDataNascimento() {
+        return dataNascimento;
+    }
+
+    public void setDataNascimento(String dataNascimento) {
+        this.dataNascimento = dataNascimento;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
     }
 }

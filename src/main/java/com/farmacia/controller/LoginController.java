@@ -16,12 +16,15 @@ public class LoginController {
     private LoginService loginService;
 
     @PostMapping
-    public ResponseEntity<String> autenticarUsuario(@RequestBody Usuario usuario) {
-        boolean autenticado = loginService.autenticarUsuario(usuario);
-        if (autenticado) {
-            return ResponseEntity.ok("Login bem-sucedido!");
+    public ResponseEntity<Usuario> autenticarUsuario(@RequestBody Usuario usuario) {
+        Usuario usuarioExistente = loginService.autenticarUsuario(usuario);
+        if (usuarioExistente != null) {
+
+            System.out.println("Usuário encontrado: " + usuarioExistente);
+            return ResponseEntity.ok(usuarioExistente); // Retorna o objeto completo do usuário
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 }
+

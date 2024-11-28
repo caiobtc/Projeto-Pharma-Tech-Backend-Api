@@ -15,6 +15,8 @@ public class CadastroController {
 
     @PostMapping
     public String cadastrarUsuario(@RequestBody Usuario usuario) {
+
+        System.out.println("Usuário recebido: " + usuario);
         return cadastroService.cadastrarUsuario(usuario);
     }
 }
